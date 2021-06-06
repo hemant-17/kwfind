@@ -28,3 +28,5 @@ python manage.py migrate
 ```python
 python manage.py runserver
 ```
+To get more information about the project [kwfind_doc.docx](https://github.com/hemant-17/kwfind/files/6604610/kwfind_doc.docx)
+
