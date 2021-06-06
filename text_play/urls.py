@@ -8,5 +8,6 @@ urlpatterns = [
     path('keywordfind/',views.keyfinder,name='keyfinder'),
     path('getinfo',views.getinfo, name="getinfo"),
     path('apple_info',views.apple_info, name="apple_info"),
+    path('keyword_finder_ajax',views.keyword_finder_ajax, name="keyword_finder_ajax"),
 
 ]

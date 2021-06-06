@@ -28,78 +28,201 @@ def keyfinder(request):
         print(url)
         ##Keyword extraction
         response = requests.get(url)
-        soup = BeautifulSoup(response.text,'html.parser')
-        metas = soup.find_all('meta')
-        desc=[ meta.attrs['content'] for meta in metas if 'name' in meta.attrs and meta.attrs['name'] == 'Description' ]
-        keywords=[ meta.attrs['content'] for meta in metas if 'name' in meta.attrs and meta.attrs['name'] == 'Keywords']
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text,'html.parser')
+            metas = soup.find_all('meta')
+            desc=[]
+            keywords=[]
+            for meta in metas:
+                if 'name' in meta.attrs and (meta.attrs['name'] == 'Description' or meta.attrs['name'] == 'description'):
+                    desc.append(meta.attrs['content'])
+            for meta in metas:
+                if 'name' in meta.attrs and( meta.attrs['name'] == 'keywords' or meta.attrs['name'] == 'Keywords') :
+                    keywords.append(meta.attrs['content'])
+            print(keywords)
 
-        ##preprocessing of keywords
-        for i in keywords:
-            keywords=i.split(',')
-        j=[]
-        for x in keywords:
-            j.append(x.strip())
-        existing_keywords=Keyword.objects.all()
-        existing_list=[]
-        for g in existing_keywords:
-            existing_list.append(g.keyword)
+            ##preprocessing of keywords
+            for i in keywords:
+                keywords=i.split(',')
+            j=[]
+            for x in keywords:
+                j.append(x.strip())
+            existing_keywords=Keyword.objects.all()
+            existing_list=[]
+            for g in existing_keywords:
+                existing_list.append(g.keyword)
 
-        ##checking if they already exists in db
-        set2 = set(existing_list)
-        final_keywords = [o for o in j if o not in existing_list]
+            ##checking if they already exists in db
+            set2 = set(existing_list)
+            final_keywords = [o for o in j if o not in existing_list]
 
-        ##saving in db if not duplicate
-        for i in final_keywords:
-            keyword_obj=Keyword(keyword=i)
-            keyword_obj.save()
+            ##saving in db if not duplicate
+            for i in final_keywords:
+                keyword_obj=Keyword(keyword=i)
+                keyword_obj.save()
 
-        #checking if url already exists
-        existing_url=Url.objects.all()
-        url_list=[]
-        for i in existing_url:
-            url_list.append(i.url)
+            #checking if url already exists
+            existing_url=Url.objects.all()
+            url_list=[]
+            for i in existing_url:
+                url_list.append(i.url)
 
-        if url in url_list:
-            print("Already exists")
-        else:
-            url_obj=Url(url=url)
-            url_obj.save()
-            print("Url added to db")
-            ##add mapping
-            url_id=Url.objects.get(url=url)
+            if url in url_list:
+                print("Already exists")
+            else:
+                url_obj=Url(url=url)
+                url_obj.save()
+                print("Url added to db")
+                ##add mapping
+                url_id=Url.objects.get(url=url)
+                for i in j:
+                    kobj=Keyword.objects.get(keyword=i)
+                    mapping_obj=Mapping_of_url(keyword=kobj,url_id=url_id)
+                    mapping_obj.save()
+                print("Mapping done")
+            ## recommendation
             for i in j:
-                kobj=Keyword.objects.get(keyword=i)
-                mapping_obj=Mapping_of_url(keyword=kobj,url_id=url_id)
-                mapping_obj.save()
-            print("Mapping done")
-        ## recommendation
-        for i in j:
-            rec_url=Mapping_of_url.objects.filter(keyword=i).values_list('url_id',flat=True)
-            print(rec_url)
-            related_urlid=[]
-            for x in rec_url:
-                related_urlid.append(x)
-        x=Counter(related_urlid)
-        related_urlid=list(set(related_urlid))
-        print(related_urlid)
-        print(x)
-        recm_url_id=[]
-        for i in x.items():
-            print(i)
-            if i[1] > 3:
-                recm_url_id.append(i[0])
-        print(recm_url_id)
-        for i in related_urlid:
-            x=Url.objects.get(id=i)
-            related_url.append(x.url)
-        for i in recm_url_id:
-            x=Url.objects.get(id=i)
-            recm_url.append(x.url)
-        for i in related_url:
-            if i in recm_url:
-                related_url.remove(i)
+                rec_url=Mapping_of_url.objects.filter(keyword=i).values_list('url_id',flat=True)
+                print(rec_url)
+                related_urlid=[]
+                for x in rec_url:
+                    related_urlid.append(x)
+            x=Counter(related_urlid)
+            related_urlid=list(set(related_urlid))
+            print(related_urlid)
+            print(x)
+            recm_url_id=[]
+            for i in x.items():
+                print(i)
+                if i[1] > 3:
+                    recm_url_id.append(i[0])
+            print(recm_url_id)
+            for i in related_urlid:
+                x=Url.objects.get(id=i)
+                related_url.append(x.url)
+            for i in recm_url_id:
+                x=Url.objects.get(id=i)
+                recm_url.append(x.url)
+            for i in related_url:
+                if i in recm_url:
+                    related_url.remove(i)
+            return JsonResponse({'related_url':related_url,'recom_url':recm_url},status=200)
+        else:
+            print('Wrong package Name, Please Check')
+            response = JsonResponse({"error": "Wrong package Name, Please Check"})
+            response.status_code = 403 # To announce that the user isn't allowed to publish
+            return response
 
     return render(request,'keyfinder.html',{'form':urlform,'related_url':related_url,'recom_url':recm_url})
+
+def keyword_finder_ajax(request):
+    urlform=UrlForm()
+    recm_url=[]
+    related_url=[]
+    if request.method=='POST':
+        url=request.POST['url']
+        print(url)
+        ##Keyword extraction
+        response = requests.get(url)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text,'html.parser')
+            metas = soup.find_all('meta')
+            desc=[]
+            keywords=[]
+            for meta in metas:
+                if 'name' in meta.attrs and (meta.attrs['name'] == 'Description' or meta.attrs['name'] == 'description'):
+                    desc.append(meta.attrs['content'])
+            for meta in metas:
+                if 'name' in meta.attrs and( meta.attrs['name'] == 'keywords' or meta.attrs['name'] == 'Keywords') :
+                    keywords.append(meta.attrs['content'])
+            print(keywords)
+
+            ##preprocessing of keywords
+            for i in keywords:
+                keywords=i.split(',')
+            print(keywords)
+            j=[]
+            for x in keywords:
+                j.append(x.strip())
+            existing_keywords=Keyword.objects.all()
+            existing_list=[]
+            for g in existing_keywords:
+                existing_list.append(g.keyword)
+
+            ##checking if they already exists in db
+            set2 = set(existing_list)
+            final_keywords = [o for o in j if o not in existing_list]
+
+            ##saving in db if not duplicate
+            for i in final_keywords:
+                keyword_obj=Keyword(keyword=i)
+                keyword_obj.save()
+
+            #checking if url already exists
+            existing_url=Url.objects.all()
+            url_list=[]
+            for i in existing_url:
+                url_list.append(i.url)
+
+            if url in url_list:
+                print("Already exists")
+            else:
+                url_obj=Url(url=url)
+                url_obj.save()
+                print("Url added to db")
+                ##add mapping
+                url_id=Url.objects.get(url=url)
+                for i in j:
+                    kobj=Keyword.objects.get(keyword=i)
+                    mapping_obj=Mapping_of_url(keyword=kobj,url_id=url_id)
+                    mapping_obj.save()
+                print("Mapping done")
+            ## recommendation
+            related_urlid=[]
+            for i in j:
+                rec_url=Mapping_of_url.objects.filter(keyword=i).values_list('url_id',flat=True)
+                for x in rec_url:
+                    related_urlid.append(x)
+            x=Counter(related_urlid)
+            related_urlid=list(set(related_urlid))
+            recm_url_id=[]
+            for i in x.items():
+                if i[1] >= 3:
+                    recm_url_id.append(i[0])
+            print(recm_url_id)
+            for i in related_urlid:
+                x=Url.objects.get(id=i)
+                related_url.append(x.url)
+            for i in recm_url_id:
+                x=Url.objects.get(id=i)
+                recm_url.append(x.url)
+            for i in related_url:
+                if i in recm_url or i==url:
+                    related_url.remove(i)
+            print(j)
+            print(related_url)
+            print(recm_url)
+            ##recomended keywords
+            rec_keywds=[]
+            for i in recm_url_id:
+                map_key_obj=Mapping_of_url.objects.filter(url_id=i).values_list('keyword',flat=True)
+                for i in map_key_obj:
+                    rec_keywds.append(i)
+            final_rec_keys=[]
+            for i in rec_keywds:
+                if i not in j:
+                    final_rec_keys.append(i)
+            print(final_rec_keys)
+            if url in related_url:
+                related_url.remove(url)
+            if url in recm_url:
+                recm_url.remove(url)
+            return JsonResponse({'related_url':related_url,'recom_url':recm_url,'key_wds':j,'rec_wds':final_rec_keys},status=200)
+        else:
+            print('Wrong URL')
+            response = JsonResponse({"error": "Wrong URL"})
+            response.status_code = 403 # To announce that the user isn't allowed to publish
+            return response
 
 def getinfo(request):
     if request.method=='POST':

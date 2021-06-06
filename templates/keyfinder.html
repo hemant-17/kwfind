@@ -26,7 +26,7 @@
     </div>
     <button type="submit" id="submitbtn" class="btn btn-primary">Get Keywords</button>
   </form>
-  <div>
+  <!-- <div>
     {% if related_url %}
     <h4>Related Urls</h4>
     {% for i in related_url %}
@@ -40,26 +40,33 @@
       {{ i }}
       {% endfor %}
     {% endif %}
-      </div>
+      </div> -->
     <h1 style="visibility: hidden;">hello</h1>
   </div>
   <!-- Modal -->
-  <div class="modal fade" id="getCodeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal fade bd-example-modal-lg" id="getCodeModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">App Info</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Keyword Info</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
 
         <div class="modal-body" >
-            <div>
-              {{ related_url }}
+          <div id="keywordsin">
+
+          </div>
+          <div id="myData">
+
+            </div>
+          <div id="myData">
+
+            </div>
+            <div id="recomurl">
               </div>
-              <div>
-                {{ recom_url }}
+              <div id="recomkeys">
               </div>
 
 
@@ -76,12 +83,73 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 <script>
   $(document).on('submit','#keyword_form',function(e){
+    e.preventDefault();
       var btn = document.getElementById('submitbtn');
       btn.disabled = true;
       btn.innerText = 'Loading...';
-      $("#getCodeModal").modal('show');
-      btn.disabled = false;
-      btn.innerText = 'Get Info' // the message
+      $.ajax({
+                type:'POST',
+                url:'/keyword_finder_ajax',
+                data:{
+                  url:$('#url').val(),
+                    csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+
+                },
+                dataType: "json",
+                success:function(resp){
+                    $("#getCodeModal").modal('show');
+
+                    var data2=resp['key_wds']
+                    var kewi=''+data2[0]
+                    for (var i = 1; i < data2.length; i++) {
+                      kewi= kewi + ', '+data2[i]
+                    }
+                    document.getElementById("keywordsin").innerHTML = "<strong>Keywords: </strong>"+kewi;
+                    console.log(kewi)
+                    var data=resp['related_url']
+                    console.log(data)
+                    console.log(data2)
+                    if (data.length>0) {
+                      var mainContainer = document.getElementById("myData");
+                    mainContainer.innerHTML="<strong>Related Url's: </strong>"
+                    for (var i = 0; i < data.length; i++) {
+                      var div = document.createElement("div");
+                      div.innerHTML =  data[i]
+                      mainContainer.appendChild(div);
+                    }
+
+                    }
+                    var data=resp['recom_url']
+                    if (data.length>0) {
+                      var mainContainer = document.getElementById("recomurl");
+                    mainContainer.innerHTML="<strong>Recommended Url's: </strong>"
+                    for (var i = 0; i < data.length; i++) {
+                      var div = document.createElement("div");
+                      div.innerHTML =  data[i]
+                      mainContainer.appendChild(div);
+                    }
+                    }
+                    var data2=resp['rec_wds']
+                    if (data2.length>0) {
+                      var kewi=''+data2[0]
+                    for (var i = 1; i < data2.length; i++) {
+                      kewi= kewi + ', '+data2[i]
+                    }
+                    document.getElementById("recomkeys").innerHTML = "<strong>Recommended Keywords: </strong>"+kewi;
+                    }
+
+                var btn = document.getElementById('submitbtn');
+                btn.disabled = false;
+                btn.innerText = 'Get Keywords' // the message
+
+                },
+                error: function(data){
+                alert(data.responseJSON.error);
+                var btn = document.getElementById('submitbtn');
+                btn.disabled = false;
+                btn.innerText = 'Get Keywords' // the message
+        }
+            })
 
 
   });
