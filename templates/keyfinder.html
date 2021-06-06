@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+    {% load static %}
+    {% block head %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <style>
+      .wrapper{
+        /* background-image: linear-gradient(to right, #b8cbb8 0%, #b8cbb8 0%, #b465da 0%, #cf6cc9 33%, #ee609c 66%, #ee609c 100%); */
+        background-image: linear-gradient(45deg, #874da2 0%, #c43a30 100%);
+        min-height: 700px;
+      }
+      .container{
+        background-color: white;
+        color: black;
+      }
+    </style>
+    {% endblock %}
+{% block body %}
+<div class="wrapper">
+<h1 style="visibility: hidden;">hello</h1>
+<h1 style="visibility: hidden;">hello</h1>
+  <div class="container">
+    <form method="POST" id="keyword_form">{% csrf_token %}
+    <div class="form-group">
+      <h3 style="visibility: hidden;">hello</h3>
+      {{ form.as_p }}
+    </div>
+    <button type="submit" id="submitbtn" class="btn btn-primary">Get Keywords</button>
+  </form>
+  <div>
+    {% if related_url %}
+    <h4>Related Urls</h4>
+    {% for i in related_url %}
+    {{ i }}
+    {% endfor %}
+    {% endif %}
+    </div>
+    <div>
+      {% if recom_url %}
+      {% for i in recom_url %}
+      {{ i }}
+      {% endfor %}
+    {% endif %}
+      </div>
+    <h1 style="visibility: hidden;">hello</h1>
+  </div>
+  <!-- Modal -->
+  <div class="modal fade" id="getCodeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">App Info</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body" >
+            <div>
+              {{ related_url }}
+              </div>
+              <div>
+                {{ recom_url }}
+              </div>
+
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script>
+  $(document).on('submit','#keyword_form',function(e){
+      var btn = document.getElementById('submitbtn');
+      btn.disabled = true;
+      btn.innerText = 'Loading...';
+      $("#getCodeModal").modal('show');
+      btn.disabled = false;
+      btn.innerText = 'Get Info' // the message
+
+
+  });
+</script>
+{% endblock %}

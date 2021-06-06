@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% load static %}
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
+
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+
+    {% block head %} {% endblock %}
+</head>
+<body>
+
+	<div id="navHeadWrapper" class="navHeaderWrapper header-image">
+		<!-- NavBar -->
+		<!-- Brand -->
+		<div class="">
+			<nav class="navbar navbar-expand-lg bg-faded header-nav">
+				<div class="container">
+
+					<div class="col-xl-4 col-lg-3 col-6 mx-auto ">
+						<a class="navbar-brand" href="/"><h4>KWFind</h4></a>
+					</div>
+
+					<div class="col-6 text-right d-lg-none d-block">
+						<button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#nav-content" aria-controls="nav-content" aria-expanded="false" aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon flaticon-left-menu"></span>
+						</button>
+					</div>
+
+					<div class="col-xl-8 col-lg-9">
+						<!-- Links -->
+						<div class="collapse navbar-collapse justify-content-end" id="nav-content">
+							<ul class="navbar-nav text-center mt-lg-0 mt-5">
+								<li class="nav-item active">
+						        	<a class="nav-link js-scroll-trigger" href="/">Home</a>
+						      	</li>
+						      	<li class="nav-item">
+						        	<a class="nav-link js-scroll-trigger" href="/appsearcher">App Searcher</a>
+						      	</li>
+						      	<li class="nav-item">
+						        	<a class="nav-link js-scroll-trigger" href="/keywordfind">Keyword finder</a>
+						      	</li>
+
+							</ul>
+						</div>
+					</div>
+				</div>
+			</nav>
+		</div>
+		<!-- /NavBar -->
+
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+        {% block body %} {% endblock %}
+	</div>
+
+</body>
+</html>
