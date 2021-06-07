@@ -282,6 +282,8 @@ def getinfo(request):
                 response = JsonResponse({"error": "Wrong package Name, Please Check"})
                 response.status_code = 403 # To announce that the user isn't allowed to publish
                 return response
+    else:
+        return HttpResponse("make it post")
 
 
 def apple_info(request):
@@ -337,3 +339,5 @@ def apple_info(request):
                 response = JsonResponse({"error": "Wrong package Name, Please Check"})
                 response.status_code = 403 # To announce that the user isn't allowed to publish
                 return response
+    else:
+        return HttpResponse("Request not received")
